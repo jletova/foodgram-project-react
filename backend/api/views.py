@@ -1,132 +1,84 @@
-# from django.core.mail import send_mail
-# from django.db.models import Avg
-# from django_filters.rest_framework import DjangoFilterBackend
-# from django.shortcuts import get_object_or_404
-# from django.contrib.auth.tokens import default_token_generator
-# from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.db.models import F
+from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth import get_user_model
 
-# from rest_framework import viewsets, status, filters
-# from rest_framework import generics, mixins, views
-# from rest_framework.mixins import CreateModelMixin, ListModelMixin
-# from rest_framework.generics import ListAPIView
+from rest_framework import viewsets, status, filters
+from rest_framework import generics, mixins, views
+from rest_framework.mixins import CreateModelMixin, ListModelMixin
 
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import action
 
-# from rest_framework.response import Response
-# from rest_framework.decorators import api_view, permission_classes
-# from rest_framework.permissions import AllowAny, IsAuthenticated
-# from rest_framework_simplejwt.tokens import RefreshToken
-# from rest_framework.decorators import action
+# from api_yamdb.settings import PROJECT_MAIL
 
-
-# # from api_yamdb.settings import PROJECT_MAIL
-
-# from .serializers import (
+from .serializers import (UserSerializer, 
+    TagSerializer, IngredientSerializer, RecipeSerializer,
+    IngredientsAmountSerializer)
 #     UserSerializer, UserAuthSerializer, UserTokenSerializer,
 #     FollowSerializer, TagSerializer,
 #     RecipeSerializer, IngredientSerializer
 # )
 # from .permissions import (AdminRoleOnly, ReadOnly,
-#                           IsAuthorModeratorAdminOrReadOnly)
-# from foodgram.models import Recipe, Ingredient, Follow, Tag, Recipe
+                        #   IsAuthorModeratorAdminOrReadOnly)
+from api.models import User, Tag, Ingredient, Recipe
 # from api.filters import TitleFilter
 
 
-# User = get_user_model()
+User = get_user_model()
 
 
-# class UserViewSet(viewsets.ModelViewSet):
-#     """Класс-вьюсет для модели User."""
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#     permission_classes = (AdminRoleOnly,)
-#     lookup_field = 'username'
-#     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
-#     search_fields = ('username',)
-
-#     @action(
-#         detail=False,
-#         url_path='me',
-#         methods=['get', 'patch'],
-#         permission_classes=[IsAuthenticated]
-#     )
-#     def handling_personal_info(self, request):
-
-#         user = request.user
-
-#         if request.method == 'PATCH':
-#             serializer = UserSerializer(user, data=request.data, partial=True)
-#             serializer.is_valid(raise_exception=True)
-#             if user.role != User.USER:
-#                 serializer.save()
-#             else:
-#                 serializer.save(role=user.role)
-#         else:
-#             serializer = UserSerializer(user)
-
-#         return Response(serializer.data)
+class UserViewSet(viewsets.ModelViewSet):
+    """Класс-вьюсет для модели User."""
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    # permission_classes = (AdminRoleOnly,)
+    # permission_classes = (AllowAny,)
+    # lookup_field = 'id'
+    # filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    search_fields = ('email', 'username')
 
 
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def signup(request):
-#     """View-функция для регистрации новых пользователей."""
-#     serializer = UserAuthSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         user = get_object_or_404(
-#             User, username=serializer.validated_data['username']
-#         )
-#         token = default_token_generator.make_token(user)
-#         send_mail(
-#             'Код подтверждения',
-#             'Ваш код подтверждения: <{}>'.format(token),
-#             PROJECT_MAIL,
-#             [serializer.validated_data['email']],
-#             fail_silently=False,
-#         )
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class RecipeViewSet(viewsets.ModelViewSet):
+    """View-функция для произведений."""
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
+    permission_classes = [AllowAny]
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_class = RecipeFilter
+
+    # def get_queryset(self):
+    #     print('asdfasdf', self.request)
+    #     if self.request.method == "GET":
+    #         return Ingredient.objects.order_by('-id').annotate(amount=F('ingredient__amount'))
+    #     return Recipe.objects.all()
+
+    # def get_serializer_class(self):
+    #     if self.request.method == "GET":
+    #         return ReadRecipeSerializer
+    #     return WrireRecipeSerializer
 
 
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def token_emission(request):
-#     """View-функция для выдачи токена пользователю."""
-#     serializer = UserTokenSerializer(data=request.data)
-#     if serializer.is_valid():
-#         user = get_object_or_404(
-#             User,
-#             username=serializer.validated_data['username']
-#         )
-#         refresh = RefreshToken.for_user(user)
-#         return Response(
-#             {'token': str(refresh.access_token)}, status=status.HTTP_200_OK
-#         )
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(author=self.request.user)
 
 
-
-
-# class RecipeViewSet(viewsets.ModelViewSet):
-#     """View-функция для произведений."""
-#     queryset = Recipe.objects.order_by('-id').annotate(
-#         rating=Avg('reviews__score')
-#     )
-#     serializer_class = RecipeSerializer
-#     permission_classes = [AdminRoleOnly | ReadOnly]
-#     filter_backends = [DjangoFilterBackend]
-#     filterset_class = RecipeFilter
-
-
-# class TagViewSet(viewsets.ReadOnlyModelViewSet):
-#     """View-функция для категорий."""
-#     queryset = Tag.objects.all()
-#     serializer_class = TagSerializer
-#     permission_classes = [AllowAny]
-#     filter_backends = [filters.SearchFilter]
-#     search_fields = ['=name']
-#     # lookup_field = 'id'
-
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """View-функция для категорий."""
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [AllowAny]
+    # filter_backends = [filters.SearchFilter]
+    # search_fields = ['=name']
+    # lookup_field = 'id'
 
 
 # class CreateDeleteViewSet (mixins.CreateModelMixin,
@@ -169,12 +121,24 @@
 #         return self.request.user.is_subscribed.all()
 
 
-# # class IngredientViewSet(ListAPIView):
-# class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-#     """View-функция для ингридиентов."""
-#     queryset = Ingredient.objects.all()
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """View-функция для ингридиентов."""
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    permission_classes = [AllowAny]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['=name']
+    lookup_field = 'pk'
+
+
+# class IngredientsAmountViewSet(viewsets.ModelViewSet):
+#     """View-функция для ингридиентов в рецепте."""
+#     queryset = Ingredient.objects.order_by('-id').annotate(amount=F('ingredient__amount'))
+#     # queryset = IngredientsAmount.objects.all()
 #     serializer_class = IngredientSerializer
 #     permission_classes = [AllowAny]
 #     filter_backends = [filters.SearchFilter]
 #     search_fields = ['=name']
-#     lookup_field = 'id'
+#     lookup_field = 'pk'
+
+# if self.context['request'].user.is_authenticated:

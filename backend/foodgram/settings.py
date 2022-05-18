@@ -16,27 +16,26 @@ from datetime import timedelta
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path='infra/.env')
+load_dotenv(dotenv_path='backend/.env')
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET_KEY', default=get_random_secret_key())
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'dr4a7&@+2_+^p%9bhd)8%q%k9he7zacsy%$c6(aq1*9raf9^p6'
+# SECRET_KEY = 'k(0*hf5f6gj(8p-%%p^3pyk5o4!-60v%$5(9o#ud%2jibf8_3t'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -48,12 +47,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'api',
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
-    'foodgram',
-    'api',
-    'users',
     # 'reviews.apps.ReviewsConfig',
     # 'rest_framework_simplejwt',
     'django_filters',
@@ -69,15 +66,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 6,
-}
-
 ROOT_URLCONF = 'foodgram.urls'
-
-# TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
-
 
 TEMPLATES = [
     {
@@ -101,6 +90,13 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
@@ -112,12 +108,6 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -149,7 +139,8 @@ USE_I18N = True
 
 USE_L10N = True
 
-# USE_TZ = True
+USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
@@ -171,17 +162,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100
 }
 
-# AUTH_USER_MODEL = 'reviews.User'
+AUTH_USER_MODEL = 'api.User'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-
-# EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
-
-# PROJECT_MAIL = "YamDB@example.com"
-
-# PASSWORD_RESET_TIMEOUT_DAYS = 99999
-
-# SIMPLE_JWT = {
-#     # Устанавливаем срок жизни токена
-#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1440),
-# }
+DJOSER = {
+    "USER_ID_FIELD": "id"
+}

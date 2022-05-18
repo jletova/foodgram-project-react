@@ -1,9 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-import datetime as dt
-
-
-CURRENT_YEAR = dt.datetime.now().year
 
 
 class User(AbstractUser):
@@ -14,7 +10,7 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=150)
     password = models.CharField(max_length=150)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'username', 'last_name', 'email', 'password']
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'password']
 
     class Meta:
         ordering = ['-id']
@@ -25,8 +21,8 @@ class User(AbstractUser):
 
 class Ingredient(models.Model):
     """Ингридиенты для рецептов."""
-    name = models.CharField(max_length=200, verbose_name='Название', blank=False, unique=True)
-    measurement_unit = models.SlugField(max_length=200, blank=False)
+    name = models.CharField(max_length=200, blank=False, unique=True)
+    measurement_unit = models.CharField(max_length=200, blank=False)
 
     class Meta:
         ordering = ['-id']
@@ -36,9 +32,9 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
-    """Ингридиенты для рецептов."""
-    name = models.CharField(max_length=200, verbose_name='Название', blank=False, unique=True)
-    color = models.CharField(verbose_name='Цвет', max_length=7,
+    """Тэги для рецептов."""
+    name = models.CharField(max_length=200, blank=False, unique=True)
+    color = models.CharField(max_length=7,
                              help_text='HEX color, as #RRGGBB')
     slug = models.SlugField(max_length=200, blank=False, unique=True)  #^[-a-zA-Z0-9_]+$
 
@@ -55,34 +51,35 @@ class Recipe(models.Model):
         User,
         on_delete=models.SET_DEFAULT,
         default='Пользователь больше не существует',
-        related_name='Автор рецепта',
+        related_name='recipe',
         blank=False
     )
     name = models.CharField(
         max_length=200,
         blank=False,
-        verbose_name='Название'
     )
     text = models.TextField(
         blank=False,
-        verbose_name='Описание'
     )
     image = models.ImageField(upload_to='foodgraam/media/recipes/', null=True, blank=True)  # поле для картинки
     cooking_time = models.PositiveIntegerField(blank=False)
-    tags = models.ForeignKey(
+    tags = models.ManyToManyField(
         Tag,
-        null=True,
-        on_delete=models.CASCADE,
-        related_name='recipes',
-        verbose_name='Тэги'
+        blank=True,
+        # on_delete=models.CASCADE,
+        related_name='recipe',
     )
+    # tags = models.ManyToManyField(
+    #     Tag,
+    #     through='TagsInRecipe',
+    #     # null=True,
+    #     # on_delete=models.DO_NOTHING,
+    #     related_name='in_recipe',
+    # )
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='IngredientInRecipe',
-        # null=True,
-        # on_delete=models.DO_NOTHING,
-        related_name='recipes',
-        verbose_name='Ингредиенты'
+        through='IngredientsAmount',
+        related_name='recipe',
     )
 
     class Meta:
@@ -98,19 +95,19 @@ class Recipe(models.Model):
         return self.name
 
 
-class IngredientInRecipe(models.Model):
-    """Ингридиенты для рецептов."""
+class IngredientsAmount(models.Model):
+    """Количество ингридиента в рецепте."""
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='Автор рецепта',
+        related_name='ingredient',
         blank=False
     )
-    amount = models.PositiveSmallIntegerField()
+    amount = models.PositiveSmallIntegerField(default=1)
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='Автор рецепта',
+        related_name='ingredient', 
         blank=False
     )
 
@@ -118,26 +115,28 @@ class IngredientInRecipe(models.Model):
         ordering = ['-ingredient']
         constraints = [
             models.UniqueConstraint(
-                fields=['recipe', 'amount', 'ingredient'],
+                fields=['recipe', 'ingredient'],
                 name='unique_ingredient_in_recipe'
             ),
         ]
+    
+    def __str__(self):
+        return f'{self.ingredient} = {self.amount}'
 
 
 class IsInShoppingCart(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='is_in_shopping_cart',
+        related_name='have_in_shopping_cart',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='is_in_shopping_cart',
+        related_name='have_in_shopping_cart',
     )
     # is_in_shopping_cart = models.BooleanField(default=False, blank=False)
     # is_favourite = models.BooleanField(default=False, blank=False)
-
 
     class Meta:
         ordering = ['-user']
@@ -151,16 +150,16 @@ class IsInShoppingCart(models.Model):
         ]
 
 
-class Follow(models.Model):
+class FavouriteAuthor(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='is_subscribed',
+        related_name='favouriteuser',
     )
     following = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='is_subscribed',
+        related_name='favouritefollowing',
         blank=False, null=False
     )
 
@@ -184,12 +183,12 @@ class FavouriteRecipe(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='is_favourite',
+        related_name='favouriterecipe',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='is_favourite',
+        related_name='favouriterecipe',
         blank=False, null=False
     )
 
