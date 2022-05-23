@@ -21,7 +21,7 @@ class AdminRoleOnly(permissions.BasePermission):
                 or request.user.is_superuser)
 
 
-class IsAuthorModeratorAdminOrReadOnly(permissions.BasePermission):
+class IsAuthorAdminOrReadOnly(permissions.BasePermission):
     """Класс разрешений для доступа к представлению автору,
     моредатору, администратору и суперюзеру."""
 
@@ -32,6 +32,6 @@ class IsAuthorModeratorAdminOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return (request.method in permissions.SAFE_METHODS
                 or request.user.is_authenticated
-                and request.user.role in ('admin', 'moderator')
+                # and request.user.role in ('admin', 'moderator')
                 or request.user.is_superuser
                 or obj.author == request.user)

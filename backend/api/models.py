@@ -21,11 +21,17 @@ class User(AbstractUser):
 
 class Ingredient(models.Model):
     """Ингридиенты для рецептов."""
-    name = models.CharField(max_length=200, blank=False, unique=True)
+    name = models.CharField(max_length=200, blank=False)
     measurement_unit = models.CharField(max_length=200, blank=False)
 
     class Meta:
         ordering = ['-id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_ingredient_and_measurement'
+            ),
+        ]
 
     def __str__(self):
         return self.name
@@ -61,7 +67,7 @@ class Recipe(models.Model):
     text = models.TextField(
         blank=False,
     )
-    image = models.ImageField(upload_to='foodgraam/media/recipes/', null=True, blank=True)  # поле для картинки
+    image = models.ImageField(upload_to='recipes/', null=True, blank=True)  # поле для картинки
     cooking_time = models.PositiveIntegerField(blank=False)
     tags = models.ManyToManyField(
         Tag,
@@ -69,13 +75,6 @@ class Recipe(models.Model):
         # on_delete=models.CASCADE,
         related_name='recipe',
     )
-    # tags = models.ManyToManyField(
-    #     Tag,
-    #     through='TagsInRecipe',
-    #     # null=True,
-    #     # on_delete=models.DO_NOTHING,
-    #     related_name='in_recipe',
-    # )
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientsAmount',
@@ -150,21 +149,21 @@ class IsInShoppingCart(models.Model):
         ]
 
 
-class FavouriteAuthor(models.Model):
+class Follow(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='favouriteuser',
+        related_name='followuser',
     )
     following = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='favouritefollowing',
+        related_name='follow',
         blank=False, null=False
     )
 
     class Meta:
-        ordering = ['-user']
+        ordering = ['-id']
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'following'], name='unique_follow'
