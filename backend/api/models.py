@@ -148,6 +148,9 @@ class IsInShoppingCart(models.Model):
             # ),
         ]
 
+    def __str__(self):
+        return f'{self.user} - {self.recipe}'
+
 
 class Follow(models.Model):
     user = models.ForeignKey(

@@ -24,7 +24,7 @@ from .serializers import (UserSerializer, RecipesInFollowSerializer,
 from .permissions import IsAuthorAdminOrReadOnly
 # (AdminRoleOnly, ReadOnly,
                         #   IsAuthorAdminOrReadOnly)
-from api.models import User, Tag, Ingredient, Recipe, Follow, FavouriteRecipe, IsInShoppingCart
+from api.models import User, Tag, Ingredient, Recipe, Follow, FavouriteRecipe, IsInShoppingCart, IngredientsAmount
 # from api.filters import TitleFilter
 
 
@@ -72,6 +72,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = [AllowAny]
+    pagination_class = None
     filter_backends = [filters.SearchFilter]
     search_fields = ['=name']
     lookup_field = 'pk'
@@ -139,12 +140,40 @@ class RecipeViewSet(viewsets.ModelViewSet):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+    @action(detail=False, methods=['get'])
+    def download_shopping_cart(self, request):
+        recipe_list = IsInShoppingCart.objects.filter(user=self.request.user)
+        # user=self.request.user
+        # recipes = list(self.request.user.have_in_shopping_cart.all())
+        print('dfgbdlkjna',recipe_list)
+
+        # ingredients = list(recipes.ingredients.all())
+        # ingred = Ingredient.objects.filter(ingredient='recipe__ingredient')
+        # ingred = Ingredient.objects.select_related('recipe', 'user').all()
+        # teamID = list(Team.objects.all().values_list('id', flat=True))
+        query1 = IngredientsAmount.objects.filter(recipe__in=recipe_list)
+
+        sdfgdf = IngredientsAmount.objects.filter(isinstance=recipe_list)
+
+        print('sdfbddsaf', sdfgdf)
+        # print('sdfbddsdfghdaf', ingred)
+
+        # from django.db.models import Count
+        # result = (Ingredient.objects
+        #     .values('name')
+        #     .annotate(dcount=Count('designation'))
+        #     .order_by()
+# )
+        
+
+
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """View-функция для категорий."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [AllowAny]
+    pagination_class = None
     # filter_backends = [filters.SearchFilter]
     # search_fields = ['=name']
     # lookup_field = 'id'
