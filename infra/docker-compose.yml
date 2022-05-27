@@ -20,7 +20,7 @@ services:
       - ./.env
 
   web:
-    image: jletova/foodgram:latest
+    image: jletova/foodgram_backend:latest
     restart: always
     volumes:
       - static_value:/app/static/

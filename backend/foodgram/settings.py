@@ -28,14 +28,6 @@ ALLOWED_HOSTS = ['*']
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'k(0*hf5f6gj(8p-%%p^3pyk5o4!-60v%$5(9o#ud%2jibf8_3t'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-
-# ALLOWED_HOSTS = []
-
 
 # Application definition
 
