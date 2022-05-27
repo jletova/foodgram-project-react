@@ -25,7 +25,6 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = CustomPagination
-    permission_classes = [IsAuthorAdminOrReadOnly, ]
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     search_fields = ('email', 'username')
 
