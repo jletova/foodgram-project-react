@@ -1,3 +1,4 @@
+from ast import Raise
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
 from django.shortcuts import get_object_or_404
@@ -7,7 +8,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from api.models import (FavouriteRecipe, Follow, Ingredient, IngredientsAmount,
-                        IsInShoppingCart, Recipe, Tag, User)
+                        IsInShoppingCart, Recipe, Tag)
 
 User = get_user_model()
 
@@ -16,19 +17,20 @@ class UserSerializer(DjoserUserSerializer):
     """Сериализатор для модели User."""
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
-    username = serializers.CharField(
-        max_length=150, required=True,
-        validators=[
-            RegexValidator(
-                regex='^[\w.@+-]+\z',
-                message='Invalid username',
-                code='invalid_username'
-            ),
-        ]
-    )
+    # username = serializers.CharField(
+    #     max_length=150, required=True,
+    #     validators=[
+    #         RegexValidator(
+    #             regex='^[\w.@+-]+\z',
+    #             message='Invalid username',
+    #             code='invalid_username'
+    #         ),
+    #     ]
+    # )
 
     class Meta:
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed')
+        fields = ('email', 'id', 'username',
+            'first_name', 'last_name', 'is_subscribed')
         model = User
 
     def get_is_subscribed(self, obj):
@@ -60,7 +62,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientsAmountSerializer(serializers.ModelSerializer):
     '''Сериализатор для ингредиентов в рецепте.'''
 
-    id =  serializers.IntegerField()
+    id = serializers.IntegerField()
 
     class Meta:
         model = IngredientsAmount
@@ -69,7 +71,7 @@ class IngredientsAmountSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = IngredientSerializer(instance.ingredient).data
         representation['amount'] = instance.amount
-        return representation 
+        return representation
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -83,16 +85,16 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
-        model = Recipe        
+        model = Recipe
 
     def get_is_favorited(self, obj):
-        user=self.context.get('request').user
+        user = self.context.get('request').user
         if not user.is_authenticated or self.context.get('request') is None:
             return False
         return FavouriteRecipe.objects.filter(user=user, recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        user=self.context.get('request').user
+        user = self.context.get('request').user
         if not user.is_authenticated or self.context.get('request') is None:
             return False
         return IsInShoppingCart.objects.filter(user=user, recipe=obj).exists()
@@ -125,8 +127,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             recipe.cooking_time = validated_data.get('cooking_time')
             recipe.image = validated_data.get('image')
             recipe.save()
-        except:
-            ValidationError('Все поля обязательны для заполнения')
+        except ValidationError:
+            Raise ('Все поля обязательны для заполнения')
         return recipe
 
 
@@ -144,17 +146,16 @@ class UserAndRecipeSerializer(serializers.ModelSerializer):
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ('email', 'id', 'username', 'first_name', 
-            'last_name', 'recipes', 'recipes_count')
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'recipes', 'recipes_count')
         model = User
 
     def get_recipes_count(self, obj):
         return obj.recipe.count()
-    
+
     def get_recipes_limit(self):
         recipes_limit = self.context['request'].query_params['recipes_limit']
-        limit = int(recipes_limit)
-        return limit
+        return int(recipes_limit)
 
     def get_recipes(self, obj):
         if 'recipes_limit' in str(self.context['request']):

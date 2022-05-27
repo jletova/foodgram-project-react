@@ -42,7 +42,7 @@ class Tag(models.Model):
     name = models.CharField(max_length=200, blank=False, unique=True)
     color = models.CharField(max_length=7,
                              help_text='HEX color, as #RRGGBB')
-    slug = models.SlugField(max_length=200, blank=False, unique=True)  #^[-a-zA-Z0-9_]+$
+    slug = models.SlugField(max_length=200, blank=False, unique=True)
 
     class Meta:
         ordering = ['-id']
@@ -67,12 +67,11 @@ class Recipe(models.Model):
     text = models.TextField(
         blank=False,
     )
-    image = models.ImageField(upload_to='recipes/', null=True, blank=True)  # поле для картинки
+    image = models.ImageField(upload_to='recipes/')
     cooking_time = models.PositiveIntegerField(blank=False)
     tags = models.ManyToManyField(
         Tag,
         blank=True,
-        # on_delete=models.CASCADE,
         related_name='recipe',
     )
     ingredients = models.ManyToManyField(
@@ -106,7 +105,7 @@ class IngredientsAmount(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='ingredient', 
+        related_name='ingredient',
         blank=False
     )
 
@@ -118,7 +117,7 @@ class IngredientsAmount(models.Model):
                 name='unique_ingredient_in_recipe'
             ),
         ]
-    
+
     def __str__(self):
         return f'{self.ingredient} = {self.amount}'
 

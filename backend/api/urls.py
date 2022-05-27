@@ -10,7 +10,8 @@ router = DefaultRouter()
 router.register(r'tags', TagViewSet, basename="tags")
 router.register(r'ingredients', IngredientViewSet, basename="ingredients")
 router.register(r'recipes', RecipeViewSet, basename="recipes")
-router.register(r'users/subscriptions', FollowViewSet, basename="subscriptions")
+router.register(r'users/subscriptions',
+                FollowViewSet, basename="subscriptions")
 
 
 urlpatterns = [
@@ -19,6 +20,3 @@ urlpatterns = [
     path('', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
 ]
-
-# import pprint
-# pprint.pprint(router.get_urls())

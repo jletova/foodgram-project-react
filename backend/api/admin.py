@@ -69,6 +69,7 @@ class FavouriteRecipeAdmin(admin.ModelAdmin):
 
 admin.site.register(FavouriteRecipe, FavouriteRecipeAdmin)
 
+
 class IsInShoppingCartAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe', 'id')
     search_fields = ('user', 'recipe')
