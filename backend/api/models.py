@@ -124,28 +124,24 @@ class IngredientsAmount(models.Model):
 
 
 class IsInShoppingCart(models.Model):
+    """Модель для списка покупок."""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='have_in_shopping_cart',
+        related_name='shopping_cart',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='have_in_shopping_cart',
+        related_name='shopping_cart',
     )
-    # is_in_shopping_cart = models.BooleanField(default=False, blank=False)
-    # is_favourite = models.BooleanField(default=False, blank=False)
 
     class Meta:
         ordering = ['-user']
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'], name='unique_shopping_cart',
-            ),
-            # models.UniqueConstraint(
-            #     fields=['user', 'recipe'], name='unique_favourite',
-            # ),
+            )
         ]
 
     def __str__(self):
@@ -153,6 +149,7 @@ class IsInShoppingCart(models.Model):
 
 
 class Follow(models.Model):
+    """Подписки."""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -182,6 +179,7 @@ class Follow(models.Model):
 
 
 class FavouriteRecipe(models.Model):
+    """Список избранного."""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
