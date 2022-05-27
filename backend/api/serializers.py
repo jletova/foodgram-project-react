@@ -1,6 +1,4 @@
-from ast import Raise
 from django.contrib.auth import get_user_model
-from django.core.validators import RegexValidator
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer as DjoserUserSerializer
 from drf_extra_fields.fields import Base64ImageField
@@ -17,20 +15,12 @@ class UserSerializer(DjoserUserSerializer):
     """Сериализатор для модели User."""
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
-    # username = serializers.CharField(
-    #     max_length=150, required=True,
-    #     validators=[
-    #         RegexValidator(
-    #             regex='^[\w.@+-]+\z',
-    #             message='Invalid username',
-    #             code='invalid_username'
-    #         ),
-    #     ]
-    # )
 
     class Meta:
-        fields = ('email', 'id', 'username',
-            'first_name', 'last_name', 'is_subscribed')
+        fields = (
+            'email', 'id', 'username',
+            'first_name', 'last_name', 'is_subscribed'
+        )
         model = User
 
     def get_is_subscribed(self, obj):
@@ -128,7 +118,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             recipe.image = validated_data.get('image')
             recipe.save()
         except ValidationError:
-            Raise ('Все поля обязательны для заполнения')
+            ValidationError('Все поля обязательны для заполнения')
         return recipe
 
 
