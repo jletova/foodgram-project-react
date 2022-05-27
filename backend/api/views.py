@@ -80,24 +80,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
-    @action(detail=False, methods=['get'],
-            permission_classes=[IsAuthenticated])
-    def favorite(self, request):
-        queryset = Recipe.objects.filter(favouriterecipe__user=request.user)
-        if queryset is not None:
-            serializer = ShortRecipeSerializer(
-                instance=queryset,
-                many=True
-            )
-            return Response(
-                data=serializer.data,
-                status=status.HTTP_200_OK
-            )
-        return Response(
-            data={'message': 'У вас нет избранных рецептов'},
-            status=status.HTTP_200_OK
-        )
-
     @action(detail=True, methods=['post', 'delete'])
     def shopping_cart(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
