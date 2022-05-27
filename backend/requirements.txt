@@ -13,5 +13,4 @@ Pillow==9.1.0
 django-extra-fields==3.0.2
 reportlab==3.6.9
 pip==22.1.1
-# sqlparse==0.2.2
-# django-filter==2.2.16
+

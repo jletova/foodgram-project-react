@@ -138,11 +138,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__measurement_unit',
             'amount'
         )
-        with open(r'media/shopping_cart.txt', 'w', encoding='utf-8') as cart:
-            cart.write('ЛИСТ ПОКУПОК')
-            cart.write('\n')
-            for name, measure, amount in data:
-                cart.write("%s\n" % f'• {name.capitalize()} ({measure}) — {amount}')
+        cart = f'СПИСОК ПОКУПОК:\n'
+        for name, measure, amount in data:
+            cart += (
+                f'• {name.capitalize()} ({measure}) — {amount}\n'
+            )
         response = HttpResponse(
             cart,
             content_type='text/plain;charset=UTF-8',
