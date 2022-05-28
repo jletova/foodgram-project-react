@@ -98,7 +98,7 @@ class Recipe(models.Model):
         blank=False,
         verbose_name='Текст'
     )
-    image = models.ImageField(upload_to='recipes/', blank=False, null=False
+    image = models.ImageField(upload_to='recipes/', blank=False, null=False,
                               verbose_name='Изображение')
     cooking_time = models.PositiveIntegerField(
         blank=False,
