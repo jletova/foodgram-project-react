@@ -16,7 +16,7 @@
 
 ## Workflow status badge
 
-[![Django-app workflow](https://github.com/jletova/yamdb_final/actions/workflows/yamdb_workflow.yml/badge.svg)](https://github.com/jletova/yamdb_final/workflows/yamdb_workflow/badge.svg)
+[![Django-app workflow](https://github.com/jletova/foodgram-project-react/actions/workflows/foodgram.yml/badge.svg)](https://github.com/jletova/foodgram-project-react/workflows/foodgram/badge.svg)
 
 
 ### Документация:
@@ -24,5 +24,5 @@
 Подробная документация по API расположена по ссылке:
 
 ```
-(http://uletova.com/redoc/)
+(http://uletova.com/api/docs/redoc.html)
 ```
