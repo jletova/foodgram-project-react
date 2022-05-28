@@ -25,7 +25,6 @@ class User(AbstractUser):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
-
     def __str__(self):
         return self.username
 
@@ -68,7 +67,7 @@ class Tag(models.Model):
     )
     color = models.CharField(max_length=7, verbose_name='Цвет',
                              help_text='HEX color, as #RRGGBB')
-    slug = models.SlugField(max_length=200, blank=False, 
+    slug = models.SlugField(max_length=200, blank=False,
                             unique=True, verbose_name='Слаг')
 
     class Meta:
