@@ -32,4 +32,4 @@ class CustomFilter(FilterSet):
 
 
 class IngredientSearchFilter(filters.SearchFilter):
-    search_param= 'name'
+    search_param = 'name'
