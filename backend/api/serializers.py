@@ -101,7 +101,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 recipe=reicpe, amount=item['amount']
             )
         return reicpe
-    
+
     def update(self, recipe, validated_data):
         IngredientsAmount.objects.filter(recipe=recipe).delete()
         ingredients_data = validated_data.pop('ingredient')
@@ -123,7 +123,9 @@ class RecipeSerializer(serializers.ModelSerializer):
             recipe.image = validated_data.get('image')
             recipe.save()
         except exceptions.ValidationError:
-            raise serializers.ValidationError('Все поля обязательны для заполнения')
+            raise serializers.ValidationError(
+                'Все поля обязательны для заполнения'
+            )
         return recipe
 
     def validate_ingredients(self, ingredients):
@@ -137,10 +139,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         return ingredients
 
     def validate_cooking_time(self, cooking_time):
-        if cooking_time is None or cooking_time <= 0: 
-                raise serializers.ValidationError(
-                    'Введите время приготовления'
-                )
+        if cooking_time is None or cooking_time <= 0:
+            raise serializers.ValidationError(
+                'Введите время приготовления'
+            )
         return cooking_time
 
 
