@@ -24,5 +24,5 @@
 Подробная документация по API расположена по ссылке:
 
 ```
-(http://uletova.com/api/docs/redoc.html)
+http://uletova.com/api/docs/redoc.html
 ```
