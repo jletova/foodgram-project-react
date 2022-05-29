@@ -37,7 +37,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AdminOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ['^name']
-    lookup_field = 'pk'
+    lookup_field = 'id'
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
