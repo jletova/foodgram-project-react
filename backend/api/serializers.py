@@ -1,8 +1,7 @@
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer as DjoserUserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from rest_framework import exceptions, serializers
 
 from .models import (FavouriteRecipe, Follow, Ingredient, IngredientsAmount,
                      IsInShoppingCart, Recipe, Tag, User)
@@ -67,6 +66,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientsAmountSerializer(source='ingredient', many=True)
     tags = TagSerializer(many=True)
     image = Base64ImageField()
+    cooking_time = serializers.IntegerField(min_value=1)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
@@ -92,18 +92,26 @@ class RecipeSerializer(serializers.ModelSerializer):
         reicpe = Recipe.objects.create(**validated_data)
         reicpe.tags.set(tags_data)
         for item in ingredients_data:
+            if item['amount'] is None or item['amount'] <= 0:
+                raise serializers.ValidationError(
+                    'Добавьте количество ингридиента'
+                )
             IngredientsAmount.objects.create(
                 ingredient=get_object_or_404(Ingredient, id=item['id']),
                 recipe=reicpe, amount=item['amount']
             )
         return reicpe
-
+    
     def update(self, recipe, validated_data):
         IngredientsAmount.objects.filter(recipe=recipe).delete()
         ingredients_data = validated_data.pop('ingredient')
         tags_data = validated_data.pop('tags')
         recipe.tags.set(tags_data)
         for item in ingredients_data:
+            if item['amount'] is None or item['amount'] <= 0:
+                raise serializers.ValidationError(
+                    'Добавьте количество ингридиента'
+                )
             IngredientsAmount.objects.create(
                 ingredient=get_object_or_404(Ingredient, id=item['id']),
                 recipe=recipe, amount=item['amount']
@@ -114,19 +122,26 @@ class RecipeSerializer(serializers.ModelSerializer):
             recipe.cooking_time = validated_data.get('cooking_time')
             recipe.image = validated_data.get('image')
             recipe.save()
-        except ValidationError:
-            ValidationError('Все поля обязательны для заполнения')
+        except exceptions.ValidationError:
+            raise serializers.ValidationError('Все поля обязательны для заполнения')
         return recipe
 
     def validate_ingredients(self, ingredients):
         ing_list = []
         for ing in ingredients:
             if ing['id'] in ing_list:
-                raise Exception(
+                raise serializers.ValidationError(
                     'Ингредиент уже добавлен'
                 )
             ing_list.append(ing['id'])
         return ingredients
+
+    def validate_cooking_time(self, cooking_time):
+        if cooking_time is None or cooking_time <= 0: 
+                raise serializers.ValidationError(
+                    'Введите время приготовления'
+                )
+        return cooking_time
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
