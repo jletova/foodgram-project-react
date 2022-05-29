@@ -5,10 +5,10 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from .filters import CustomFilter
+from .filters import CustomFilter, IngredientSearchFilter
 from .models import (FavouriteRecipe, Follow, Ingredient, IngredientsAmount,
                      IsInShoppingCart, Recipe, Tag)
 from .pagination import CustomPagination
@@ -29,15 +29,14 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('email', 'username')
 
 
-class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+class IngredientViewSet(viewsets.ModelViewSet):
     """View-функция для ингридиентов."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
     permission_classes = [AdminOrReadOnly]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['^name']
-    lookup_field = 'id'
+    filter_backends = [IngredientSearchFilter]
+    search_fields = ['^name', ]
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -136,7 +135,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return response
 
 
-class TagViewSet(viewsets.ReadOnlyModelViewSet):
+class TagViewSet(viewsets.ModelViewSet):
     """View-функция для категорий."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer

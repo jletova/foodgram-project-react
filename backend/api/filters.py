@@ -1,5 +1,6 @@
 from django_filters.rest_framework import (BooleanFilter, FilterSet,
                                            ModelMultipleChoiceFilter)
+from rest_framework import filters
 
 from .models import Recipe, Tag
 
@@ -28,3 +29,7 @@ class CustomFilter(FilterSet):
     class Meta:
         model = Recipe
         fields = ('tags', 'author')
+
+
+class IngredientSearchFilter(filters.SearchFilter):
+    search_param= 'name'

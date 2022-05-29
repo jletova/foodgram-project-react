@@ -121,15 +121,11 @@ class RecipeSerializer(serializers.ModelSerializer):
     def validate_ingredients(self, ingredients):
         ing_list = []
         for ing in ingredients:
-            ingredient = get_object_or_404(
-                Ingredient,
-                id=ing['id']
-            )
-            if ingredient in ing_list:
-                raise serializers.ValidationError(
+            if ing['id'] in ing_list:
+                raise Exception(
                     'Ингредиент уже добавлен'
                 )
-            ing_list.append(ingredient)
+            ing_list.append(ing['id'])
         return ingredients
 
 
