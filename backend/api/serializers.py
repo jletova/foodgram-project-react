@@ -118,6 +118,20 @@ class RecipeSerializer(serializers.ModelSerializer):
             ValidationError('Все поля обязательны для заполнения')
         return recipe
 
+    def validate_ingredients(self, ingredients):
+        ing_list = []
+        for ing in ingredients:
+            ingredient = get_object_or_404(
+                Ingredient,
+                id=ing['id']
+            )
+            if ingredient in ing_list:
+                raise serializers.ValidationError(
+                    'Ингредиент уже добавлен'
+                )
+            ing_list.append(ingredient)
+        return ingredients
+
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор User для подписок."""
