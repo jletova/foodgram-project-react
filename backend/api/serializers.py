@@ -94,7 +94,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         for item in ingredients_data:
             if item['amount'] is None or item['amount'] <= 0:
                 raise serializers.ValidationError(
-                    'Добавьте количество ингридиента'
+                    'Добавьте количество ингредиента'
                 )
             IngredientsAmount.objects.create(
                 ingredient=get_object_or_404(Ingredient, id=item['id']),
@@ -110,7 +110,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         for item in ingredients_data:
             if item['amount'] is None or item['amount'] <= 0:
                 raise serializers.ValidationError(
-                    'Добавьте количество ингридиента'
+                    'Добавьте количество ингредиента'
                 )
             IngredientsAmount.objects.create(
                 ingredient=get_object_or_404(Ingredient, id=item['id']),

@@ -30,7 +30,7 @@ class User(AbstractUser):
 
 
 class Ingredient(models.Model):
-    """Ингридиенты для рецептов."""
+    """Ингредиенты для рецептов."""
     name = models.CharField(
         max_length=200,
         blank=False,
@@ -44,8 +44,8 @@ class Ingredient(models.Model):
 
     class Meta:
         ordering = ['id']
-        verbose_name = 'Ингридиент'
-        verbose_name_plural = 'Ингридиенты'
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
@@ -114,7 +114,7 @@ class Recipe(models.Model):
         Ingredient,
         through='IngredientsAmount',
         related_name='recipe',
-        verbose_name='Ингридиенты'
+        verbose_name='Ингредиенты'
     )
 
     class Meta:
@@ -133,7 +133,7 @@ class Recipe(models.Model):
 
 
 class IngredientsAmount(models.Model):
-    """Количество ингридиента в рецепте."""
+    """Количество ингредиента в рецепте."""
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -150,7 +150,7 @@ class IngredientsAmount(models.Model):
         on_delete=models.CASCADE,
         related_name='ingredient',
         blank=False,
-        verbose_name='Ингридиент'
+        verbose_name='Ингредиент'
     )
 
     class Meta:
@@ -165,7 +165,7 @@ class IngredientsAmount(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.ingredient} = {self.amount}'
+        return f'{self.ingredient} - {self.amount} {self.ingredient__measurement_unit}'
 
 
 class IsInShoppingCart(models.Model):
