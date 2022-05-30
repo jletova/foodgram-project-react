@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django import forms
 
 
 class User(AbstractUser):
@@ -17,11 +16,7 @@ class User(AbstractUser):
     )
     first_name = models.CharField(max_length=150, verbose_name='Имя')
     last_name = models.CharField(max_length=150, verbose_name='Фамилия')
-    password = models.CharField(
-        max_length=150,
-        widget=forms.PasswordInput,
-        verbose_name='Пароль'
-    )
+    password = models.CharField(max_length=150, verbose_name='Пароль')
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'password']
 
